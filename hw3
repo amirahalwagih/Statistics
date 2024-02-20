@@ -1,0 +1,49 @@
+Lab 2 
+Amirah and Ariel
+#"rahhhhh" is the document name with all the data lol (dice was rolled 100 times, the document included all 100 of the numbers) 
+> View(rahhhhhhh)
+> library(readr)
+> rahhhhhhh <- read_csv("Downloads/rahhhhhhh.csv")
+Rows: 19 Columns: 1                          
+── Column specification ───────────────────────
+Delimiter: ","
+dbl (1): 3
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+> View(rahhhhhhh)
+> how_many_rolls <- 100
+> sim_rolls <- sample(1:6, how_many_rolls, replace = TRUE)
+> 
+> how_many_rolls <- 10
+> sim_rolls <- sample(1:6, how_many_rolls, replace = TRUE)
+> how_many_rolls <- 10
+> sim_rolls <- sample(1:6, how_many_rolls, replace = TRUE)
+> how_many_rolls <- 10
+> sim_rolls <- sample(1:6, how_many_rolls, replace = TRUE)
+> how_many_rolls <- 10
+> sim_rolls <- sample(1:6, how_many_rolls, replace = TRUE)
+> how_many_rolls <- 10
+> sim_rolls <- sample(1:6, how_many_rolls, replace = TRUE)
+> how_many_rolls <- 10
+> sim_rolls <- sample(1:6, how_many_rolls, replace = TRUE)
+> how_many_rolls <- 10
+> sim_rolls <- sample(1:6, how_many_rolls, replace = TRUE)
+> how_many_rolls <- 10
+> sim_rolls <- sample(1:6, how_many_rolls, replace = TRUE)
+> how_many_rolls <- 10
+> sim_rolls <- sample(1:6, how_many_rolls, replace = TRUE)
+> how_many_rolls <- 10
+> sim_rolls <- sample(1:6, how_many_rolls, replace = TRUE)
+#After manipulating the dice by rounding it (using a nail file) at 1, making the possibility of landing a 6 less likley, I rolled the dice 100 times. #1 showed up 16 times, #2 showed up 20, #3 showed up 16 times, #4 showed up 20 times, 5) showed up 15 times, ans #6 showed up 13 times. 
+#After seeing that number 6 had the least amount in comparison to the other numbers, we can confirm that the manipilation had some significance in these findings and thus made the dice unfair to roll. 
+#The frequency of face 6 appearing the least (13 times) suggests that the manipulation made the dice less likely to roll a 6. This deviation from an expected uniform distribution indicates that the manipulation affected the fairness of the dice.
+#The confidence in this conclusion is moderate, as the sample size (100 rolls) is relatively small. 
+The possible protocols include: 
+Possible Protocol 1 (PP1) - We roll the dice once, if 6 appears, we would conclude that the dice is unfair. if it does not appear, we can say that it is fair. 
+  False positive (type I Error) - the probablity of falsely assuming the dice is unfair when it is actually unfair is 5% if α = 0.05
+  False negative (Type II Error) - the probablity of a falsely assuming that the dice is fair when it actually unfair is less than 20% and very low as the nail file manipulation reduces the possibility of landing a 6. 
+Experimental Protocol (EP) - We roll the dice 100 times. From the 100 times, 6 rolled 13 times. Significance level α = 0.05. 
+  False negative - proportion of 6 (13/100 = 0.13) is greater than or equal to 0.20 (20%) 
+  False positive - proportion of 6 is less than 0.20 (20%). 
+  
