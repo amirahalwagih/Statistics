@@ -1,0 +1,322 @@
+---
+title: "Lab5Hw6"
+Name: Amirah Alwagih
+output: html_document
+date: "2024-03-21"
+---
+# first want to make some factors into numbers
+brfss22$Age_midpt <- fct_recode(brfss22$X_AGEG5YR, "21" = "Age 18 to 24",
+                                      "27" = "Age 25 to 29", "32" = "Age 30 to 34",
+                                      "37" = "Age 35 to 39", "42" = "Age 40 to 44",
+                                      "47" = "Age 45 to 49", "52" = "Age 50 to 54",
+                                      "57" = "Age 55 to 59", "62" = "Age 60 to 64",
+                                      "67" = "Age 65 to 69", "72" = "Age 70 to 74",
+                                      "77" = "Age 75 to 79", "82" = "Age 80 or older",
+                                      NULL = "Dont know/Refused/Missing")
+brfss22$Age_midpt <- as.numeric(levels(brfss22$Age_midpt))[brfss22$Age_midpt]
+brfss22$income_midpoint <- fct_recode(brfss22$INCOME3, 
+                        "7500" = "Household income less than $10,000",
+                        "12500" = "Less than $15,000 ($10,000 to less than $15,000)",
+                        "17500" = "Less than $20,000 ($15,000 to less than $20,000) ",
+                        "22500" = "Less than $25,000 ($20,000 to less than $25,000) ",
+                        "30000" = "Less than $35,000 ($25,000 to less than $35,000) ",
+                        "42500" = "Less than $50,000 ($35,000 to less than $50,000) ",
+                        "62500" = "Less than $75,000 ($50,000 to less than $75,000)",
+                        "87500" = "Less than $100,000 ($75,000 to less than $100,000)",
+                        "125000" = "Less than $150,000 ($100,000 to less than $150,000)",
+                        "175000" = "Less than $200,000 ($150,000 to less than $200,000)",
+                        "210000" = "$200,000 or more",
+                        NULL = "Dont know/Not sure",
+                        NULL = "Refused")
+brfss22$income_midpoint <- as.numeric(levels(brfss22$income_midpoint))[brfss22$income_midpoint]
+
+brfss22$Educ_number <- fct_recode(brfss22$EDUCA, 
+                                  "0" = "Never attended school or only kindergarten", 
+                                  "4.5" = "Grades 1 through 8 (Elementary)",
+                                  "10" = "Grades 9 through 11 (Some high school)",
+                                  "12" = "Grade 12 or GED (High school graduate)",
+                                  "14" = "College 1 year to 3 years (Some college or technical school)",
+                                  "16" = "College 4 years or more (College graduate)",
+                                  NULL = "Refused" )
+brfss22$Educ_number <- as.numeric(levels(brfss22$Educ_number))[brfss22$Educ_number]
+
+# this level name can create problems later so fix it here
+levels(brfss_marijan$X_PRACE2)[7] <- "dont know not sure"
+
+select1 <- !is.na(brfss22$MARIJAN1)
+brfss_marijan <- subset(brfss22, select1 )
+
+
+p_cannabis_age <- ggplot(data = brfss_marijan,
+                       mapping = aes(x = Age_midpt,
+                                     y = MARIJAN1))
+p_cannabis_age + geom_smooth()
+
+model_1 <- lm(MARIJAN1 ~ Age_midpt, data = brfss_marijan)
+summary(model_1)
+
+model_2 <- lm(MARIJAN1 ~ Age_midpt + X_PRACE2 + X_HISPANC + EDUCA, data = brfss_marijan)
+summary(model_2)
+
+# maybe get fancy
+require(stargazer)
+stargazer(model_2, type = "text")
+# play with stargazer instead of summary, it can look nicer!
+# it might throw an error at top but then work fine, just ignore it
+
+> model_3 <- lm(MARIJAN1 ~ Age_midpt + ADDEPEV3 + SDHISOLT + X_STATE, data = brfss_marijan)
+> summary(model_3)
+
+Call:
+lm(formula = MARIJAN1 ~ Age_midpt + ADDEPEV3 + SDHISOLT + X_STATE, 
+    data = brfss_marijan)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-9.3965 -2.8368 -1.5281 -0.3109 31.0986 
+
+Coefficients:
+                            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                 9.872942   0.199830  49.407  < 2e-16 ***
+Age_midpt                  -0.064850   0.001678 -38.638  < 2e-16 ***
+ADDEPEV3No                 -1.434683   0.074208 -19.333  < 2e-16 ***
+SDHISOLTUsually            -1.081909   0.204953  -5.279 1.30e-07 ***
+SDHISOLTSometimes          -2.477838   0.172800 -14.339  < 2e-16 ***
+SDHISOLTRarely             -3.133976   0.170893 -18.339  < 2e-16 ***
+SDHISOLTNever              -3.114665   0.168996 -18.430  < 2e-16 ***
+SDHISOLTDont know/Not sure -2.051236   0.377387  -5.435 5.49e-08 ***
+SDHISOLTRefused            -3.392329   0.697628  -4.863 1.16e-06 ***
+X_STATEDelaware            -0.471143   0.147123  -3.202  0.00136 ** 
+X_STATEIndiana             -0.764482   0.109604  -6.975 3.09e-12 ***
+X_STATEMaine                0.885358   0.108007   8.197 2.51e-16 ***
+X_STATEMississippi         -1.058544   0.138869  -7.623 2.52e-14 ***
+X_STATEMontana              0.343059   0.117323   2.924  0.00346 ** 
+X_STATENevada               0.814276   0.162389   5.014 5.34e-07 ***
+X_STATENew Mexico           0.573251   0.135733   4.223 2.41e-05 ***
+X_STATEWisconsin           -0.830998   0.108094  -7.688 1.52e-14 ***
+X_STATEWyoming             -1.104565   0.143031  -7.723 1.16e-14 ***
+X_STATEUSVI                -0.159875   0.208103  -0.768  0.44234    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 6.853 on 56795 degrees of freedom
+  (36921 observations deleted due to missingness)
+Multiple R-squared:  0.06255,	Adjusted R-squared:  0.06226 
+F-statistic: 210.5 on 18 and 56795 DF,  p-value: < 2.2e-16
+
+> stargazer(model_3, type = "text")
+
+======================================================
+                               Dependent variable:    
+                           ---------------------------
+                                    MARIJAN1          
+------------------------------------------------------
+Age_midpt                           -0.065***         
+                                     (0.002)          
+                                                      
+ADDEPEV3No                          -1.435***         
+                                     (0.074)          
+                                                      
+SDHISOLTUsually                     -1.082***         
+                                     (0.205)          
+                                                      
+SDHISOLTSometimes                   -2.478***         
+                                     (0.173)          
+                                                      
+SDHISOLTRarely                      -3.134***         
+                                     (0.171)          
+                                                      
+SDHISOLTNever                       -3.115***         
+                                     (0.169)          
+                                                      
+SDHISOLTDont know/Not sure          -2.051***         
+                                     (0.377)          
+                                                      
+SDHISOLTRefused                     -3.392***         
+                                     (0.698)          
+                                                      
+X_STATEDelaware                     -0.471***         
+                                     (0.147)          
+                                                      
+X_STATEIndiana                      -0.764***         
+                                     (0.110)          
+                                                      
+X_STATEMaine                        0.885***          
+                                     (0.108)          
+                                                      
+X_STATEMississippi                  -1.059***         
+                                     (0.139)          
+                                                      
+X_STATEMontana                      0.343***          
+                                     (0.117)          
+                                                      
+X_STATENevada                       0.814***          
+                                     (0.162)          
+                                                      
+X_STATENew Mexico                   0.573***          
+                                     (0.136)          
+                                                      
+X_STATEWisconsin                    -0.831***         
+                                     (0.108)          
+                                                      
+X_STATEWyoming                      -1.105***         
+                                     (0.143)          
+                                                      
+X_STATEUSVI                          -0.160           
+                                     (0.208)          
+                                                      
+Constant                            9.873***          
+                                     (0.200)          
+                                                      
+------------------------------------------------------
+Observations                         56,814           
+R2                                    0.063           
+Adjusted R2                           0.062           
+Residual Std. Error            6.853 (df = 56795)     
+F Statistic                210.543*** (df = 18; 56795)
+======================================================
+Note:                      *p<0.1; **p<0.05; ***p<0.01
+2
+
+#what additional information could you include in the regression, that would help predict cannabis use? 
+#We included data about cannabis use in different states, the impact on stress levels, and whether or not the participants were diagnosed with a depressive disorder. States were studied so we could study what relationship location would have with cannabis use, 
+
+#What subgroups have different relationships?
+#Each state has a coefficient indicating the effect of residing in that state on cannabis use compared to a reference state (not really stated here).
+For instance, residing in Indiana has a coefficient of -0.764482, indicating a negative association with cannabis use compared to the reference state.
+
+model_4 <- lm(MARIJAN1 ~ Age_midpt + INCOME3, data = brfss_marijan)
+stargazer(model_4, type = "text")
+
+=====================================================
+                              Dependent variable:    
+                          ---------------------------
+                                   MARIJAN1          
+-----------------------------------------------------
+Age_midpt                          -0.068***         
+                                    (0.001)          
+                                                     
+15,000)                             0.522**          
+                                    (0.205)          
+                                                     
+20,000)                            -0.377**          
+                                    (0.192)          
+                                                     
+25,000)                             -0.158           
+                                    (0.179)          
+                                                     
+35,000)                            -0.660***         
+                                    (0.164)          
+                                                     
+50,000)                            -0.900***         
+                                    (0.162)          
+                                                     
+75,000)                            -1.257***         
+                                    (0.159)          
+                                                     
+100,000)                           -1.787***         
+                                    (0.162)          
+                                                     
+150,000)                           -2.008***         
+                                    (0.162)          
+                                                     
+200,000)                           -2.310***         
+                                    (0.179)          
+                                                     
+200,000 or more                    -2.302***         
+                                    (0.180)          
+                                                     
+INCOME3Dont know/Not sure          -1.129***         
+                                    (0.169)          
+                                                     
+INCOME3Refused                     -1.890***         
+                                    (0.168)          
+                                                     
+Constant                           7.193***          
+                                    (0.162)          
+                                                     
+-----------------------------------------------------
+Observations                        92,378           
+R2                                   0.039           
+Adjusted R2                          0.039           
+Residual Std. Error           6.812 (df = 92364)     
+F Statistic               285.542*** (df = 13; 92364)
+=====================================================
+Note:                     *p<0.1; **p<0.05; ***p<0.01
+
+#This regression analysis suggests that income level is associated with marijuana usage, with higher income levels generally associated with lower levels of usage. 
+
+model_5 <- lm(MARIJAN1 ~ Age_midpt + MARITAL, data = brfss_marijan)
+stargazer(model_5, type = "text")
+
+==================================================================
+                                           Dependent variable:    
+                                       ---------------------------
+                                                MARIJAN1          
+------------------------------------------------------------------
+Age_midpt                                       -0.054***         
+                                                 (0.001)          
+                                                                  
+MARITALDivorced                                 1.463***          
+                                                 (0.069)          
+                                                                  
+MARITALWidowed                                  0.264***          
+                                                 (0.077)          
+                                                                  
+MARITALSeparated                                1.535***          
+                                                 (0.177)          
+                                                                  
+MARITALNever married                            1.359***          
+                                                 (0.068)          
+                                                                  
+MARITALA member of an unmarried couple          2.447***          
+                                                 (0.116)          
+                                                                  
+MARITALRefused                                    0.376           
+                                                 (0.312)          
+                                                                  
+Constant                                        4.482***          
+                                                 (0.092)          
+                                                                  
+------------------------------------------------------------------
+Observations                                     92,377           
+R2                                                0.039           
+Adjusted R2                                       0.039           
+Residual Std. Error                        6.811 (df = 92369)     
+F Statistic                            533.799*** (df = 7; 92369) 
+==================================================================
+Note:                                  *p<0.1; **p<0.05; ***p<0.01
+
+
+#Marital status variables are included as categorical predictors. Each category represents a different marital status compared to a reference group (presumably married individuals).
+
+Individuals divorced, widowed, separated, never married, or part of an unmarried couple all show statistically significant positive coefficients. This means that individuals in these categories are more likely to use cannabis compared to married individuals.
+The "Refused" category for marital status is not statistically significant.
+
+model_6 <- lm(MARIJAN1 ~ Age_midpt + X_URBSTAT, data = brfss_marijan)
+stargazer(model_6, type = "text")
+
+====================================================
+                            Dependent variable:     
+                        ----------------------------
+                                  MARIJAN1          
+----------------------------------------------------
+Age_midpt                        -0.067***          
+                                  (0.001)           
+                                                    
+X_URBSTATrural counties            -0.035           
+                                  (0.058)           
+                                                    
+Constant                          5.834***          
+                                  (0.077)           
+                                                    
+----------------------------------------------------
+Observations                       89,154           
+R2                                 0.029            
+Adjusted R2                        0.029            
+Residual Std. Error          6.866 (df = 89151)     
+F Statistic             1,326.099*** (df = 2; 89151)
+====================================================
+Note:                    *p<0.1; **p<0.05; ***p<0.01
+
+#The coefficient for rural counties is not statistically significant, suggesting that living in rural areas does not significantly impact the likelihood of cannabis use compared to the reference category.
