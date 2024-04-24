@@ -128,4 +128,36 @@ summary(model_7)
 
 AIC(model_2, model_3, model_4, model_5, model_6, model_7)
 
+Intention to lose weight and use of electronic cigarettes among adolescents
+Ruth Sanchez,a,⁎ Nalini Ranjit,a Steven H. Kelder,a Montana Gill,b and Deanna M. Hoelschera
+
+#The paper explores the correlation between weight intentions, body mass index (BMI), and electronic cigarette (e-cigarette) usage among adolescents, with a specific focus on gender differentials. Drawing upon data from the Texas School Physical Activity and Nutrition (Texas SPAN) project, the study analyzes responses from a representative sample of 8th and 11th grade students, alongside anthropometric measurements. Statistical assessments, including logistic regression analyses, are conducted to examine the relationship between e-cigarette usage and weight intentions, while adjusting for potential confounders like grade, ethnicity, economic status, diet, and physical activity. Comparable studies utilizing similar datasets often investigate adolescent health behaviors, attitudes toward weight, and patterns of e-cigarette use, employing statistical methods such as logistic regression to explore interconnections between various factors.
+
+
+Electronic cigarette use is negatively associated with body mass index: An observational study of electronic medical records
+Mohammed M. Alqahtani, Abdullah M. M. Alanazi, Abdulaziz S. Almutairi, and Gregory Pavela 
+
+#The research explores the link between e-cigarette usage and body mass index (BMI) in adults, utilizing a dataset of 207,117 electronic medical records from the University of Alabama at Birmingham. They employ ordinary least squares regression to examine the correlation between e-cigarette usage and BMI while controlling for different factors and unconditional quantile regression to assess potential variations in the association across different BMI percentiles. The study reveals that e-cigarette usage is linked to a lower BMI, mirroring the inverse association seen with traditional tobacco smoking. These results advocate for further investigation into the metabolic impacts of e-cigarettes and their potential in weight management. Similar investigations could utilize electronic medical records or extensive survey data to explore the relationship between e-cigarette usage and BMI in diverse populations and contexts.
+
+
+E-Cigarette Weight and Appetite Control Beliefs and E-Cigarette Initiation in Young Adults
+Afton Kechter, Melissa Wong1, Tyler B. Mason1, Alayna P. Tackett1, Caitlin E. Smith, Adam M. Leventhal, Genevieve F. Dunton, and Jessica L. Barrington-Trimis
+
+#The research delves into how beliefs about using e-cigarettes for weight management relate to the start of e-cigarette use among young adults. Drawing on data from online surveys conducted among 1,368 young adults in Southern California, the study looks at responses gathered at two points: baseline (May–October 2020) and 6 months later (January–May 2021). Using logistic regression models, the researchers analyze the connection between beliefs about e-cigarette weight control and the onset of e-cigarette use, while adjusting for various sociodemographic factors. Results suggest that young adults who perceive e-cigarettes as aiding weight loss or appetite control are more inclined to start using them. This underscores the importance of addressing such beliefs in efforts to curb vaping among young adults. Comparable studies may explore similar datasets regarding beliefs about tobacco or e-cigarette use and their correlation with usage initiation. The statistics used in this analysis include odds ratios (OR) and 95% confidence intervals (CI) to gauge the strength of association between e-cigarette weight control beliefs and the initiation of e-cigarette use.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
