@@ -1,0 +1,110 @@
+---
+title: "Final Project"
+output: html_document
+date: "2024-05-01"
+---
+
+# Loading required libraries
+library(readr)
+
+library(dplyr)  
+
+library(ggplot2)
+
+library(car)
+
+# Load BRFSS Data
+load("/Users/amirah./Downloads/V0500_Lecture1/BRFSS2022_rev.RData")
+
+str(brfss22)
+
+# Select relevant variables
+selected_vars <- brfss22 %>%
+  select(X_BMI5CAT, ECIGNOW2, EDUCA, X_AGEG5YR, MENTHLTH, X_PRACE2, INCOME3)
+
+# Remove rows with missing values
+selected_vars <- na.omit(selected_vars)
+
+# Rename variables for legilability
+names(selected_vars) <- c("BMI", "E_Cigarette_Use", "Education", "Age", "Mental_Health", "Race", "Income")
+
+# Summary stats for BMI and e-cigarette use
+summary(selected_vars$BMI_Category)
+summary(selected_vars$E_Cigarette_Use)
+
+# Data visualization
+# Bar plot of BMI 
+ggplot(selected_vars, aes(x = BMI)) +
+  geom_bar(fill = "skyblue") +
+  labs(title = "Distribution of BMI", x = "BMI", y = "Count")
+
+# Bar plot of e-cigarette use
+ggplot(selected_vars, aes(x = E_Cigarette_Use)) +
+  geom_bar(fill = "lightgreen") +
+  labs(title = "E-cigarette Use", x = "E-cigarette Use", y = "Count")
+  
+  
+# Bar plot of E-cigarette Use by Education
+ecig_data <- data.frame(
+  Education = brfss22$EDUCA,
+  E_Cigarette_Use = brfss22$ECIGNOW2
+)
+
+ecig_data <- na.omit(ecig_data)
+
+ggplot(ecig_data, aes(x = Education, fill = E_Cigarette_Use)) +
+     geom_bar() +
+     labs(title = "E-cigarette Use by Education Level", x = "Education Level", y = "Count", fill = "E-cigarette Use") +
+     theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
+
+
+
+# Bar plot of E-cigarette Use by BMI
+
+ecig_data <- data.frame(
+  BMI_Category = brfss22$X_BMI5CAT,
+  E_Cigarette_Use = brfss22$ECIGNOW2
+)
+# Omit missing values
+ecig_data <- na.omit(ecig_data)
+
+ggplot(ecig_data, aes(x = BMI_Category, fill = E_Cigarette_Use)) +
+  geom_bar() +
+  labs(title = "E-cigarette Use by BMI Category", x = "BMI Category", y = "Count", fill = "E-cigarette Use") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
+
+
+# Hypothesis testing using ANOVA test
+selected_vars$E_Cigarette_Use <- as.numeric(selected_vars$E_Cigarette_Use)
+
+anova_result <- aov(E_Cigarette_Use ~ Education, data = selected_vars)
+
+summary(anova_result)
+
+Null Hypothesis (H0): There is no significant difference in e-cigarette use across different levels of education.
+Alternative Hypothesis (H1): There is a significant difference in e-cigarette use across different levels of education.
+Since the p-value is extremely small (<2e-16), we reject the null hypothesis. This indicates that there is sufficient evidence to conclude that there is a significant difference in e-cigarette use across different levels of education.
+
+# Model building (logistic regression)
+# Assuming we have other predictor variables in the dataset
+model <- glm(E_Cigarette_Use ~ BMI + Age + Education + Mental_Health + Race + Income, data = selected_vars, family = binomial)
+
+summary(model)
+
+#BMI Category: The coefficients for different BMI categories (Normal Weight, Overweight, Obese) are all negative. This suggests that, holding other variables constant, individuals classified as overweight or obese are less likely to use e-cigarettes compared to those with a healthy weight.
+
+#Age: The coefficients for different age groups are all negative, indicating that older individuals are generally less likely to use e-cigarettes compared to younger individuals.
+
+#Education: The coefficients for different education levels are mixed. For example, individuals with Grade 9-11 education or those with college degrees are more likely to use e-cigarettes compared to those with elementary education. However, individuals with Grade 12 education or GED are less likely to use e-cigarettes.
+
+#Mental Health: The coefficient for mental health is positive, suggesting that individuals with better mental health are more likely to use e-cigarettes.
+
+#Race: The coefficients for different racial groups vary. For instance, Black or African American individuals are less likely to use e-cigarettes compared to other racial groups, while Native Hawaiian or Pacific Islander individuals are more likely to use e-cigarettes.
+
+#Income: The coefficients for different income levels also vary. Generally, individuals with higher income levels are less likely to use e-cigarettes compared to those with lower income levels.
+
+
+#include more graphs 
+#include comparisons between years and e cigs  
+#include t-tests ? 
+#contingency tables ?
