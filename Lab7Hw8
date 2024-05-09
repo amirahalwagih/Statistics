@@ -1,0 +1,93 @@
+---
+title: "Lab7Hw8"
+output: html_document
+date: "2024-04-24"
+---
+
+require(plyr)
+
+require(dplyr)
+
+require(tidyverse)
+
+require(ggplot2)
+
+require(stargazer)
+
+load("Household_Pulse_data_ph4c2.RData")
+
+select1 <- (Household_Pulse_data$MHLTH_NEED != "NA")
+
+d_kids <- subset(Household_Pulse_data,select1)
+
+d_kids$MentHealthKids <- as.numeric( 
+    (d_kids$MHLTH_NEED == "all children need mental health treatment") |
+    (d_kids$MHLTH_NEED == "some but not all children") )
+
+ddply(d_kids,.(RRACE), summarize, avg = mean(MentHealthKids))
+
+ols_out1 <- lm(MentHealthKids ~ -1 + RRACE, data = d_kids)
+
+stargazer(ols_out1, type = "text")
+
+ols_out1a <- lm(MentHealthKids ~ RRACE, data = d_kids)
+
+stargazer(ols_out1a, type = "text")
+
+stargazer(ols_out1, ols_out1a, type = "text")
+
+p_avg_byrace <- ggplot(d_kids, aes(x = RRACE, fill = MHLTH_NEED))
+
+p_avg_byrace + geom_bar(position = "fill") + 
+  scale_fill_viridis_d(option = "mako", begin = 0.3, end = 0.85) 
+
+ols_out2 <- lm(MentHealthKids ~ RRACE + RHISPANIC, data = d_kids)
+
+stargazer(ols_out2, type = "text")
+
+ols_out2a <- lm(MentHealthKids ~ RRACE*RHISPANIC, data = d_kids)
+
+stargazer(ols_out2a, type = "text")
+
+anova(ols_out2,ols_out2a)
+
+p_avg_byrace <- ggplot(d_kids, aes(x = RRACE, fill = MHLTH_NEED))
+
+p_avg_byrace + geom_bar(position = "fill") + 
+  scale_fill_viridis_d(option = "mako", begin = 0.3, end = 0.85) + 
+  facet_grid(~RHISPANIC)
+
+ols_out3 <- lm(MentHealthKids ~ RHISPANIC*RRACE*EEDUC*MS + PRIVHLTH, data = d_kids)
+
+stargazer(ols_out3, type = "text")
+
+ols_out3a <- lm(MentHealthKids ~ RHISPANIC*RRACE*EEDUC + MS + PRIVHLTH, data = d_kids)
+
+# stargazer(ols_out3a, type = "text")
+
+anova(ols_out2a,ols_out3a)
+
+ols_out4 <- lm(MentHealthKids ~ RHISPANIC*RRACE*EEDUC + MS + PRIVHLTH + 
+                 REGION + ANXIOUS + WORRY + INTEREST + 
+                 SOCIAL1 + SOCIAL2 + 
+                 SUPPORT1 + SUPPORT2 + SUPPORT3 + SUPPORT4 + SUPPORT1EXP, data = d_kids)
+
+stargazer(ols_out3a,ols_out4, type = "text")
+
+anova(ols_out3a,ols_out4)
+
+logit_out1 <- glm(MentHealthKids ~ RHISPANIC*RRACE*EEDUC + MS + PRIVHLTH + 
+                    REGION + ANXIOUS + WORRY + INTEREST + 
+                    SOCIAL1 + SOCIAL2 + 
+                    SUPPORT1 + SUPPORT2 + SUPPORT3 + SUPPORT4 + SUPPORT1EXP, data = d_kids,
+                  family = binomial)
+
+stargazer(ols_out4,logit_out1, type = "text")
+
+pred_vals <- predict(logit_out1, d_kids, type = "response")
+
+pred_model_logit1 <- (pred_vals > 0.1848) # because 0.5 gets hardly any at all; set to mean value
+
+table(pred = pred_model_logit1, true = d_kids$MentHealthKids)
+
+
