@@ -1,36 +1,35 @@
 ---
-title: "Final Project"
+title: "Final Projext"
 output: html_document
-date: "2024-05-01"
+date: "2024-05-24"
 ---
 
-# Loading required libraries
+# Load required libraries
 library(readr)
-
-library(dplyr)  
-
+library(dplyr)
 library(ggplot2)
-
 library(car)
+library(plyr)
+library(tidyverse)
+library(class)
+library(caret)
+library(tidyr)
 
 # Load BRFSS Data
-load("/Users/amirah./Downloads/V0500_Lecture1/BRFSS2022_rev.RData")
+ load("/Users/amirah./Downloads/V0500_Lecture1/BRFSS2022_rev.RData")
 
 str(brfss22)
 
+
 # Select relevant variables
 selected_vars <- brfss22 %>%
-  select(X_BMI5CAT, ECIGNOW2, EDUCA, X_AGEG5YR, MENTHLTH, X_PRACE2, INCOME3)
+  select(X_BMI5, ECIGNOW2, EDUCA, X_AGEG5YR, MENTHLTH, X_PRACE2, INCOME3)
 
 # Remove rows with missing values
 selected_vars <- na.omit(selected_vars)
 
 # Rename variables for legilability
 names(selected_vars) <- c("BMI", "E_Cigarette_Use", "Education", "Age", "Mental_Health", "Race", "Income")
-
-# Summary stats for BMI and e-cigarette use
-summary(selected_vars$BMI_Category)
-summary(selected_vars$E_Cigarette_Use)
 
 # Data visualization
 # Bar plot of BMI 
@@ -55,16 +54,15 @@ ecig_data <- na.omit(ecig_data)
 ggplot(ecig_data, aes(x = Education, fill = E_Cigarette_Use)) +
      geom_bar() +
      labs(title = "E-cigarette Use by Education Level", x = "Education Level", y = "Count", fill = "E-cigarette Use") +
-     theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
-
+     theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate x-axis labels for better readability
 
 
 # Bar plot of E-cigarette Use by BMI
-
 ecig_data <- data.frame(
   BMI_Category = brfss22$X_BMI5CAT,
   E_Cigarette_Use = brfss22$ECIGNOW2
 )
+
 # Omit missing values
 ecig_data <- na.omit(ecig_data)
 
@@ -74,23 +72,212 @@ ggplot(ecig_data, aes(x = BMI_Category, fill = E_Cigarette_Use)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
 
 
-# Hypothesis testing using ANOVA test
+# Hypothesis testing using ANOVA test (EDUCATION)
 selected_vars$E_Cigarette_Use <- as.numeric(selected_vars$E_Cigarette_Use)
 
 anova_result <- aov(E_Cigarette_Use ~ Education, data = selected_vars)
 
 summary(anova_result)
 
-Null Hypothesis (H0): There is no significant difference in e-cigarette use across different levels of education.
-Alternative Hypothesis (H1): There is a significant difference in e-cigarette use across different levels of education.
-Since the p-value is extremely small (<2e-16), we reject the null hypothesis. This indicates that there is sufficient evidence to conclude that there is a significant difference in e-cigarette use across different levels of education.
+#Null Hypothesis (H0): There is no significant difference in e-cigarette use across different levels of education.Alternative Hypothesis (H1): There is a significant difference in e-cigarette use across different levels of education.Since the p-value is extremely small (<2e-16), we reject the null hypothesis. This indicates that there is sufficient evidence to conclude that there is a significant difference in e-cigarette use across different levels of education.
 
+anova_BMI <- aov(E_Cigarette_Use ~ BMI, data = selected_vars)
+summary(anova_BMI)
+
+
+anova_age <- aov(E_Cigarette_Use ~ Age, data = selected_vars)
+summary(anova_age)
+
+
+anova_mental_health <- aov(E_Cigarette_Use ~ Mental_Health, data = selected_vars)
+summary(anova_mental_health)
+
+
+anova_race <- aov(E_Cigarette_Use ~ Race, data = selected_vars)
+summary(anova_race)
+
+
+anova_income <- aov(E_Cigarette_Use ~ Income, data = selected_vars)
+summary(anova_income)
+
+
+  
 # Model building (logistic regression)
 # Assuming we have other predictor variables in the dataset
+# Convert E_Cigarette_Use to a binary variable
+selected_vars <- selected_vars %>%
+  mutate(E_Cigarette_Use = ifelse(E_Cigarette_Use %in% c(1), 1, 0))
+
+# Check unique values to ensure it is binary
+unique(selected_vars$E_Cigarette_Use)
+
+# Model building (logistic regression)
 model <- glm(E_Cigarette_Use ~ BMI + Age + Education + Mental_Health + Race + Income, data = selected_vars, family = binomial)
 
+# Display the summary of the model
 summary(model)
 
+
+# More data visualization with estimate slopes between E-cigarette Use and other variables.
+
+# Linear regression to estimate slopes for Age and E-cigarette Use
+age_ecig_model <- lm(E_Cigarette_Use ~ Age, data = selected_vars)
+
+age_ecig_coef <- coef(age_ecig_model)
+
+# Plotting the slope for Age and E-cigarette Use
+ggplot(selected_vars, aes(x = Age, y = E_Cigarette_Use)) +
+  geom_point() +
+  geom_abline(intercept = age_ecig_coef[1], slope = age_ecig_coef[2], color = "blue") +
+  labs(title = "Slope of E-cigarette Use by Age", x = "Age", y = "E-cigarette Use")
+
+# Linear regression to estimate slopes for Mental Health and E-cigarette Use
+mental_health_ecig_model <- lm(E_Cigarette_Use ~ Mental_Health, data = selected_vars)
+
+mental_health_ecig_coef <- coef(mental_health_ecig_model)
+
+# Plotting the slope for Mental Health and E-cigarette Use
+ggplot(selected_vars, aes(x = Mental_Health, y = E_Cigarette_Use)) +
+  geom_point() +
+  geom_abline(intercept = mental_health_ecig_coef[1], slope = mental_health_ecig_coef[2], color = "green") +
+  labs(title = "Slope of E-cigarette Use by Mental Health", x = "Mental Health", y = "E-cigarette Use")
+
+# Linear regression to estimate slopes for Education and E-cigarette Use
+education_ecig_model <- lm(E_Cigarette_Use ~ Education, data = selected_vars)
+
+education_ecig_coef <- coef(education_ecig_model)
+
+# Plotting the slope for Education and E-cigarette Use
+ggplot(selected_vars, aes(x = Education, y = E_Cigarette_Use)) +
+  geom_point() +
+  geom_abline(intercept = education_ecig_coef[1], slope = education_ecig_coef[2], color = "purple") +
+  labs(title = "Slope of E-cigarette Use by Education", x = "Education", y = "E-cigarette Use")
+
+# Linear regression to estimate slopes for Race and E-cigarette Use
+race_ecig_model <- lm(E_Cigarette_Use ~ Race, data = selected_vars)
+
+race_ecig_coef <- coef(race_ecig_model)
+
+# Plotting the slope for Race and E-cigarette Use
+ggplot(selected_vars, aes(x = Race, y = E_Cigarette_Use)) +
+  geom_point() +
+  geom_abline(intercept = race_ecig_coef[1], slope = race_ecig_coef[2], color = "orange") +
+  labs(title = "Slope of E-cigarette Use by Race", x = "Race", y = "E-cigarette Use")
+
+# Linear regression to estimate slopes for Income and E-cigarette Use
+income_ecig_model <- lm(E_Cigarette_Use ~ Income, data = selected_vars)
+
+income_ecig_coef <- coef(income_ecig_model)
+
+# Plotting the slope for Income and E-cigarette Use
+ggplot(selected_vars, aes(x = Income, y = E_Cigarette_Use)) +
+  geom_point() +
+  geom_abline(intercept = income_ecig_coef[1], slope = income_ecig_coef[2], color = "red") +
+  labs(title = "Slope of E-cigarette Use by Income", x = "Income", y = "E-cigarette Use")
+
+
+# Contingency table for Education and E-cigarette Use
+contingency_table <- table(selected_vars$Education, selected_vars$E_Cigarette_Use)
+barplot(contingency_table, beside = TRUE, legend = TRUE,
+        main = "E-cigarette Use by Education Level",
+        xlab = "Education Level",
+        ylab = "Count",
+        col = c("skyblue", "lightgreen"))
+
+
+# Bar plot of E-cigarette Use by Age
+ggplot(selected_vars, aes(x = factor(Age), fill = factor(E_Cigarette_Use))) +
+  geom_bar(position = "dodge") +
+  labs(title = "E-cigarette Use by Age Group", x = "Age Group", y = "Count", fill = "E-cigarette Use") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
+
+# Bar plot of E-cigarette Use by Mental Health
+ggplot(selected_vars, aes(x = factor(Mental_Health), fill = factor(E_Cigarette_Use))) +
+  geom_bar(position = "dodge") +
+  labs(title = "E-cigarette Use by Mental Health", x = "Mental Health", y = "Count", fill = "E-cigarette Use") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
+
+# Bar plot of E-cigarette Use by Education
+ggplot(selected_vars, aes(x = factor(Education), fill = factor(E_Cigarette_Use))) +
+  geom_bar(position = "dodge") +
+  labs(title = "E-cigarette Use by Education Level", x = "Education Level", y = "Count", fill = "E-cigarette Use") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
+
+# Bar plot of E-cigarette Use by Race
+ggplot(selected_vars, aes(x = factor(Race), fill = factor(E_Cigarette_Use))) +
+  geom_bar(position = "dodge") +
+  labs(title = "E-cigarette Use by Race", x = "Race", y = "Count", fill = "E-cigarette Use") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
+
+# Bar plot of E-cigarette Use by Income
+ggplot(selected_vars, aes(x = factor(Income), fill = factor(E_Cigarette_Use))) +
+  geom_bar(position = "dodge") +
+  labs(title = "E-cigarette Use by Income Level", x = "Income Level", y = "Count", fill = "E-cigarette Use") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
+
+# Combine the selected variables into a long format
+selected_vars_long <- selected_vars %>%
+  pivot_longer(cols = c(Age, Mental_Health, Education, Race, Income, BMI), 
+               names_to = "Demographic_Variable", 
+               values_to = "Value")
+
+# Bar plot of E-cigarette Use by Demographic Variable
+ggplot(selected_vars_long, aes(x = factor(Value), fill = factor(E_Cigarette_Use))) +
+  geom_bar(position = "dodge") +
+  labs(title = "E-cigarette Use Across Demographic Variables",
+       x = "Demographic Value", y = "Count", fill = "E-cigarette Use") +
+  facet_wrap(~Demographic_Variable, scales = "free_x", ncol = 2) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
+
+
+
+
+
+# Contingency tables
+# Example: Contingency table for Education and E-cigarette Use
+contingency_table <- table(selected_vars$Education, selected_vars$E_Cigarette_Use)
+print(contingency_table)
+
+# Contingency table for BMI and E-cigarette Use
+contingency_table_BMI <- table(selected_vars$BMI, selected_vars$E_Cigarette_Use)
+print(contingency_table_BMI)
+
+# Contingency table for Age and E-cigarette Use
+contingency_table_age <- table(selected_vars$Age, selected_vars$E_Cigarette_Use)
+print(contingency_table_age
+
+# Contingency table for Mental Health and E-cigarette Use
+contingency_table_mental_health <- table(selected_vars$Mental_Health, selected_vars$E_Cigarette_Use)
+print(contingency_table_mental_health)
+
+# Contingency table for Race and E-cigarette Use
+contingency_table_race <- table(selected_vars$Race, selected_vars$E_Cigarette_Use)
+print(contingency_table_race)
+
+# Contingency table for Income and E-cigarette Use
+contingency_table_income <- table(selected_vars$Income, selected_vars$E_Cigarette_Use)
+print(contingency_table_income)
+
+# Summary statistics for BMI
+
+
+# Create a data frame for visualization
+data <- summary_table[c(3, 4, 5, 6, 1), ]  # Select rows for specified variables
+
+# Convert the data to long format for easier plotting
+data_long <- pivot_longer(data, cols = c(Mean, SD, Min, Q1, Median, Q3, Max), names_to = "Stat")
+
+# Create the bar plot
+ggplot(data_long, aes(x = Variable, y = value, fill = Stat)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~Stat, scales = "free_y", ncol = 1) +
+  labs(title = "Summary Statistics",
+       x = "Variable",
+       y = "Value",
+       fill = "Statistic") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom")
 #BMI Category: The coefficients for different BMI categories (Normal Weight, Overweight, Obese) are all negative. This suggests that, holding other variables constant, individuals classified as overweight or obese are less likely to use e-cigarettes compared to those with a healthy weight.
 
 #Age: The coefficients for different age groups are all negative, indicating that older individuals are generally less likely to use e-cigarettes compared to younger individuals.
@@ -104,7 +291,3 @@ summary(model)
 #Income: The coefficients for different income levels also vary. Generally, individuals with higher income levels are less likely to use e-cigarettes compared to those with lower income levels.
 
 
-#include more graphs 
-#include comparisons between years and e cigs  
-#include t-tests ? 
-#contingency tables ?
